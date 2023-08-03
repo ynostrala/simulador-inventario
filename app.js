@@ -92,7 +92,7 @@ class Stock {
         //Limpio el HTML
         inventarioNombre.innerHTML =``
         inventarioCant.innerHTML =``
-        let busqueda = this.nombres.filter((art) => art.nombres.includes(nombreArt));
+        let busqueda = this.nombres.filter((art) => art.nombres.toLowerCase().includes(nombreArt));
         busqueda.forEach((art) => {
             inventarioNombre.innerHTML +=`
             <li class="list-group-item d-flex justify-content-between align-items-start">
@@ -120,6 +120,8 @@ const btnEliminar = document.querySelector("#btnEliminar");
 const btnListar = document.querySelector("#btnListar");
 const btnBuscar = document.querySelector("#btnBuscar");
 const myButton = document.getElementById('btnJSON');
+const formBuscar = document.querySelector("#formBuscar");
+const inputBuscar = document.querySelector("#buscarArt");
 
 //agrego eventos a los elementos
 btnAgregar.addEventListener("click", agregarArticulo);
@@ -127,8 +129,13 @@ btnSumar.addEventListener("click", sumarArticulo);
 btnBuscar.addEventListener("click", buscarArticulo);
 btnEliminar.addEventListener("click", eliminarArticulo);
 btnQuitar.addEventListener("click", quitarArticulo);
-
 document.getElementById('btnJSON').addEventListener('click', cargarJSON);
+
+inputBuscar.addEventListener("keyup",(event)=>{
+    event.preventDefault();
+    const palabra = inputBuscar.value;
+    stock.buscarArt(palabra.toLowerCase());
+})
 
 
 function agregarArticulo(){
@@ -153,32 +160,28 @@ function agregarArticulo(){
 }
 
 function cargarJSON(){
+    //uso del fetch para traer datos de un json local con datos de articulos de limpieza
     fetch('articulos.json')
     .then(response => response.json())
     .then(function(data){
         data.forEach(function(artJson){
-                stock.nombres.push(artJson);
-                // localStorage.setItem("inventario", JSON.stringify(stock.nombres))
-            })
+            stock.nombres.push(artJson);
+            stock.mostrarStock();
         })
+    })
     .catch(function(error){
         console.log(error)
     })
-    stock.mostrarStock();
+
     myButton.disabled = false;
     myButton.style.opacity = 0.8;
     myButton.textContent = 'Ejecutando proceso...';
     
-    //simulación de espera para ejecución de un proceso
     setTimeout(function() {
-        //console.log('Espera por favor...');
         myButton.textContent = 'Articulos importados con éxito';
         myButton.style.opacity = 0.7;
         myButton.disabled = true;
     }, 2000);
-    myButton.disabled = true;
-
-    stock.mostrarStock();
 }
 
 function sumarArticulo(){
@@ -193,10 +196,8 @@ function quitarArticulo(){
     stock.egresoArt(nombre, cantidad);
 }
 
-
 function eliminarArticulo(){
-    let nombre = document.getElementById("inventarioEliminar").value;
-    
+    let nombre = document.getElementById("inventarioEliminar").value; 
     //uso de la librería Sweetalert
     Swal.fire({
         title: '¿Está seguro que desea eliminar el articulo del inventario?',
@@ -210,6 +211,7 @@ function eliminarArticulo(){
         if (result.isConfirmed) {
             
             stock.eliminarArt(nombre);
+            console.log("🚀 ~ file: app.js:205 ~ eliminarArticulo ~ nombre:", nombre)
             setTimeout(function(){
                 Swal.fire(
                 'Operacion exitosa!',
@@ -224,8 +226,6 @@ function buscarArticulo(){
     let nombre = document.getElementById("buscarArt").value;
     stock.buscarArt(nombre);
 }
-
-
 
 stock.mostrarStock();
 
