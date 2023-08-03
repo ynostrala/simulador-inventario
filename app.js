@@ -112,12 +112,14 @@ const inventarioEgreso = document.querySelector("#inventarioEgreso");
 const inventarioEliminar = document.querySelector("#inventarioEliminar");
 const inventarioSumar = document.querySelector("#inventarioSumar");
 
+
 const btnAgregar = document.querySelector("#btnAgregar");
 const btnSumar = document.querySelector("#btnSumar");
 const btnQuitar = document.querySelector("#btnQuitar");
 const btnEliminar = document.querySelector("#btnEliminar");
 const btnListar = document.querySelector("#btnListar");
 const btnBuscar = document.querySelector("#btnBuscar");
+const myButton = document.getElementById('btnJSON');
 
 //agrego eventos a los elementos
 btnAgregar.addEventListener("click", agregarArticulo);
@@ -125,6 +127,8 @@ btnSumar.addEventListener("click", sumarArticulo);
 btnBuscar.addEventListener("click", buscarArticulo);
 btnEliminar.addEventListener("click", eliminarArticulo);
 btnQuitar.addEventListener("click", quitarArticulo);
+
+document.getElementById('btnJSON').addEventListener('click', cargarJSON);
 
 
 function agregarArticulo(){
@@ -146,6 +150,35 @@ function agregarArticulo(){
         }
     }
     stock.ingresoArt(nuevoArt);
+}
+
+function cargarJSON(){
+    fetch('articulos.json')
+    .then(response => response.json())
+    .then(function(data){
+        data.forEach(function(artJson){
+                stock.nombres.push(artJson);
+                // localStorage.setItem("inventario", JSON.stringify(stock.nombres))
+            })
+        })
+    .catch(function(error){
+        console.log(error)
+    })
+    stock.mostrarStock();
+    myButton.disabled = false;
+    myButton.style.opacity = 0.8;
+    myButton.textContent = 'Ejecutando proceso...';
+    
+    //simulación de espera para ejecución de un proceso
+    setTimeout(function() {
+        //console.log('Espera por favor...');
+        myButton.textContent = 'Articulos importados con éxito';
+        myButton.style.opacity = 0.7;
+        myButton.disabled = true;
+    }, 2000);
+    myButton.disabled = true;
+
+    stock.mostrarStock();
 }
 
 function sumarArticulo(){
@@ -182,7 +215,7 @@ function eliminarArticulo(){
                 'Operacion exitosa!',
                 'El artículo fue eliminado del inventario',
                 )
-            },1000)
+            },500)
         }
     })
 }
@@ -192,4 +225,7 @@ function buscarArticulo(){
     stock.buscarArt(nombre);
 }
 
+
+
 stock.mostrarStock();
+
